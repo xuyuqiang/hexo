@@ -4,17 +4,46 @@
   
     
     <entry>
-      <title><![CDATA[Hello World]]></title>
-      <url>http://xuyuqiang.com/2016/10/13/hello-world/</url>
-      <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+      <title><![CDATA[tomcat实现SSL认证]]></title>
+      <url>http://xuyuqiang.com/2016/10/14/tomcat%E5%AE%9E%E7%8E%B0SSL%E8%AE%A4%E8%AF%81/</url>
+      <content type="html"><![CDATA[<h2 id="openssl生成ssl证书"><a href="#openssl生成ssl证书" class="headerlink" title="openssl生成ssl证书"></a>openssl生成ssl证书</h2><h3 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h3><blockquote>
+<p>SSL 证书通过在客户端浏览器和 Web 服务器之间建立一条 SSL 安全通道(Secure socket layer(SSL),安全协议是由 Netscape Communication 公司设计开发。该安全协议主要用来提供对用户和服务器的认证;对传送的数据进行加密和隐藏;确保数据在传送中不被改变,即数据 的完整性,现已成为该领域中全球化的标准。由于 SSL 技术已建立到所有主要的浏览器和 WEB 服务器程序中,因此,仅需安装服务器证书就可以激活该功能了)。即通过它可以激活 SSL 协 议,实现数据信息在客户端和服务器之间的加密传输,可以防止数据信息的泄露。保证了双方传递信息的安全性,而且用户可以通过服务器证书验证他所访问的网站是否是真实可靠。<br>SSL 网站不同于一般的 Web 站点,它使用的是“HTTPS”协议,而不是普通的“HTTP”协议。 因此它的 URL(统一资源定位器)格式为“<a href="https://www.etsec.com.cn”。" target="_blank" rel="external">https://www.etsec.com.cn”。</a></p>
+</blockquote>
+<a id="more"></a>
+<h3 id="2-什么是x509证书链"><a href="#2-什么是x509证书链" class="headerlink" title="2.什么是x509证书链"></a>2.什么是x509证书链</h3><blockquote>
+<p>x509 证书一般会用到三类文件,key,csr,crt。<br>Key 是私用密钥,openssl 格式,通常是 rsa 算法。<br>csr是证书请求文件,用于申请证书。在制作csr文件的时候,必须使用自己的私钥来签署申请, 还可以设定一个密钥。<br>crt 是 CA 认证后的证书文件(windows 下面的 csr,其实是 crt),签署人用自己的 key 给你签署 的凭证。</p>
+</blockquote>
+<h3 id="3-key的生成"><a href="#3-key的生成" class="headerlink" title="3.key的生成"></a>3.key的生成</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">openssl genrsa -des3 -out server.key 2048</div></pre></td></tr></table></figure>
+<blockquote>
+<p>这样是生成 rsa 私钥,des3 算法,openssl 格式,2048 位强度。server.key 是密钥文件名。为了生成这样的密钥,需要一个至少四位的密码。可以通过以下方法生成没有密码的 key:<br>openssl rsa -in server.key -out server.key<br>server.key 就是没有密码的版本了。</p>
+</blockquote>
+<h3 id="4-生成CA的crt"><a href="#4-生成CA的crt" class="headerlink" title="4.生成CA的crt"></a>4.生成CA的crt</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">openssl req -new -x509 -key server.key -out ca.crt -days 3650</div></pre></td></tr></table></figure>
+<blockquote>
+<p>生成的 ca.crt 文件是用来签署下面的 server.csr 文件。<br>需要依次输入国家,地区,组织,email。最重要的是,有一个 common name,可以写你的名字或 者域名(例如: www.etsec.com.cn)。如果为了 https 申请,这个必须和域名吻合,否则会引发 浏览器警报。</p>
+</blockquote>
+<h3 id="5-csr-的生成方法"><a href="#5-csr-的生成方法" class="headerlink" title="5.csr 的生成方法"></a>5.csr 的生成方法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">openssl req -new -key server.key -out server.csr</div></pre></td></tr></table></figure>
+<blockquote>
+<p>需要依次输入国家,地区,组织,email。最重要的是,有一个 common name,可以写你的名字或 者域名(例如: www.etsec.com.cn)。如果为了 https 申请,这个必须和域名吻合,否则会引发 浏览器警报。生成的 csr 文件交给 CA 签名后形成服务端自己的证书。</p>
+</blockquote>
+<h3 id="6-crt生成方法"><a href="#6-crt生成方法" class="headerlink" title="6.crt生成方法"></a>6.crt生成方法</h3><blockquote>
+<p>CSR 文件必须有 CA 的签名才可形成证书.可将此文件发送到 CA 厂商 Entrust 等地方由它验证,要 支付一笔费用,测试证书可以自己做 CA 啦.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">openssl x509 -req -days 3650 -in server.csr -CA ca.crt -CAkey server.key -CAcreateserial -out server.crt</div></pre></td></tr></table></figure></p>
+<p>输入 key 的密钥后,完成证书生成。-CA 选项指明用于被签名的 csr 证书,-CAkey 选项指 明用于签名的密钥。-CAserial 指明序列号文件,而-CAcreateserial指明文件不存在时自动生成。最后生成了私用密钥:server.key 和自己认证的 SSL 证书:server.crt</p>
+</blockquote>
+<h3 id="7-生成-p12文件"><a href="#7-生成-p12文件" class="headerlink" title="7.生成.p12文件"></a>7.生成.p12文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">openssl pkcs12 -export -clcerts -in server.crt -inkey server.key -out server.p12</div></pre></td></tr></table></figure>
+<h3 id="8-tomcat实现SSL认证"><a href="#8-tomcat实现SSL认证" class="headerlink" title="8.tomcat实现SSL认证"></a>8.tomcat实现SSL认证</h3><blockquote>
+<p>按照以上方法证书生成后,我们再配置 tomcat。首先将以上创建的证书 p12文件拷贝到tomcat 主目录下的 conf 文件夹下。<br>1.双击 server.crt 证书导入信任证书库。<br>2.配置 Tomcat 支持 HTTPS 双向认证(服务器将认证客户端证书): 修改 tomcat 的 conf 目录里的 server.xml 文件($TOMCAT_HOME/conf/server.xml),找到类似下 面内容的配置处,添加配置如下:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;Connector port=<span class="string">"8443"</span> maxThreads=<span class="string">"150"</span> minSpareThreads=<span class="string">"25"</span> maxSpareThreads=<span class="string">"75"</span> <span class="built_in">enable</span>Lookups=<span class="string">"false"</span> <span class="built_in">disable</span>UploadTimeout=<span class="string">"true"</span> acceptCount=<span class="string">"100"</span> debug=<span class="string">"0"</span> scheme=<span class="string">"https"</span> secure=<span class="string">"true"</span> clientAuth=<span class="string">"false"</span> sslProtocol=<span class="string">"TLS"</span> keystoreFile=<span class="string">"conf/tomcat.p12"</span> keystorePass=<span class="string">"111111"</span> keystoreType=<span class="string">"PKCS12"</span>/&gt;</div></pre></td></tr></table></figure></p>
+<p>其中,clientAuth 指定是否需要验证客户端证书,如果该设置为“false”,则为单向 SSL 验证,SSL 配置可到此结束。如果 clientAuth 设置为“true”,表示强制双向 SSL 验证,必须验证客户端证书, 但服务器不会颁发证书必须由客户端导入。如果 clientAuth 设置为“want”,则表示可以验证客户端 证书,但如果客户端没有有效证书,也不强制验证。<br>注意:浏览器的高级选型中要启用 TLS 加密方式。</p>
+</blockquote>
+<h3 id="9-最后"><a href="#9-最后" class="headerlink" title="9.最后"></a>9.最后</h3><blockquote>
+<p>tomcat的ssl访问端口为8443。如果是手机游览器想访问，可将ca.crt证书放到tomcat外部访问目录中，供手机游览器访问ca.crt文件然后安装即可。<br>这里配置这个tomcat ssl认证，主要是为了实现iOS中通过plist文件安装ipa程序，以供内部测试人员测试使用。</p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[终于搭建完成了]]></title>
+      <url>http://xuyuqiang.com/2016/10/13/%E7%BB%88%E4%BA%8E%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%88%90%E4%BA%86/</url>
+      <content type="html"><![CDATA[<p>终于将这个个人博客搭建完成，总得来说，还算顺利，利用的是next主题，很多配置都是现成的。<br>尽管也踏入了一些坑中，但还是爬出来了。</p>
 ]]></content>
     </entry>
     
