@@ -4,6 +4,23 @@
   
     
     <entry>
+      <title><![CDATA[linux查看日志常用命令]]></title>
+      <url>http://xuyuqiang.com/2016/12/05/linux%E6%9F%A5%E7%9C%8B%E6%97%A5%E5%BF%97%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/</url>
+      <content type="html"><![CDATA[<h1 id="基本命令："><a href="#基本命令：" class="headerlink" title="基本命令："></a>基本命令：</h1><blockquote>
+<p>tail -n 10 test.log   查询日志尾部最后10行的日志；<br>  tail -n +10 test.log  查询10行之后的所有日志；<br>  head -n 10 test.log   查询日志文件中的头10行日志；<br>  head -n -10 test.log  查询日志文件除了最后10行的其他所有日志；</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="场景1：按行号查找–过滤出关键字附近的日志"><a href="#场景1：按行号查找–过滤出关键字附近的日志" class="headerlink" title="场景1：按行号查找–过滤出关键字附近的日志"></a>场景1：按行号查找–过滤出关键字附近的日志</h1><p>–因为通常时候我们用grep拿到的日志很少，我们需要查看附近的日志。</p>
+<blockquote>
+<p>cat -n test.log | grep “xxx”  得到关键日志的行号<br>  cat -n test.log | tail -n +90|head -n 20  查询100行前后10行的日志<br>  – tail -n +90   查询90行之后的日志<br>  – heand -n 20   则表示在前面的查询结果里再查前20条记录</p>
+</blockquote>
+<h1 id="场景2：查找指定时间端的日志"><a href="#场景2：查找指定时间端的日志" class="headerlink" title="场景2：查找指定时间端的日志"></a>场景2：查找指定时间端的日志</h1><blockquote>
+<p>sed -n ‘/2014-12-17 16:17:20/,/2014-12-17 16:17:36/p’ test.log<br>  – 特别说明：上面的两个日期必须是日志中打印出来的日志，否则无效。<br>  grep ‘2014-12-17 16:17:20’ test.log   可以先确定日志中是否有该时间<br>  cat -n test.log | grep “xxx” | more  分页打印，通过空格翻页<br>  cat -n test.log | grep “xxx” &gt; xx.txt 保存到xx文件中</p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[tomcat实现SSL认证]]></title>
       <url>http://xuyuqiang.com/2016/10/14/tomcat%E5%AE%9E%E7%8E%B0SSL%E8%AE%A4%E8%AF%81/</url>
       <content type="html"><![CDATA[<h2 id="openssl生成ssl证书"><a href="#openssl生成ssl证书" class="headerlink" title="openssl生成ssl证书"></a>openssl生成ssl证书</h2><h3 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h3><blockquote>
@@ -37,13 +54,6 @@
 <h3 id="9-最后"><a href="#9-最后" class="headerlink" title="9.最后"></a>9.最后</h3><blockquote>
 <p>tomcat的ssl访问端口为8443。如果是手机游览器想访问，可将ca.crt证书放到tomcat外部访问目录中，供手机游览器访问ca.crt文件然后安装即可。<br>这里配置这个tomcat ssl认证，主要是为了实现iOS中通过plist文件安装ipa程序，以供内部测试人员测试使用。</p>
 </blockquote>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[终于搭建完成了]]></title>
-      <url>http://xuyuqiang.com/2016/10/13/%E7%BB%88%E4%BA%8E%E6%90%AD%E5%BB%BA%E5%AE%8C%E6%88%90%E4%BA%86/</url>
-      <content type="html"><![CDATA[<p>终于将这个个人博客搭建完成，总得来说，还算顺利，利用的是next主题，很多配置都是现成的。<br>尽管也踏入了一些坑中，但还是爬出来了。</p>
 ]]></content>
     </entry>
     
